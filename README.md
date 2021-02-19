@@ -2,12 +2,12 @@
 This repository is to record history about tracking distributed deep learning locality anomalies.
 <br>
 
-1. Is it strictly epoch standard?
+# 1. Is it strictly epoch standard?
 Log session hooks are called after `run`. But this `run` is not as same as `epoch`.<br>
 Therefore, It cannot be explicitly said that even if `after_run` detects that epoch value>=10,<br>
 It is not exactly epoch==10, but something like 10.02.
 
-2. Configure tensorflow not to save logs in /tmp
+# 2. Configure tensorflow not to save logs in /tmp
 There is a suspicision that writing files of big size result in anomalies.
 <br>
 
