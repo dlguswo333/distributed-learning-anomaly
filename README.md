@@ -6,6 +6,15 @@ This repository is to record history about tracking distributed deep learning lo
 Log session hooks are called after `run`. But this `run` is not as same as `epoch`.<br>
 Therefore, It cannot be explicitly said that even if `after_run` detects that epoch value>=10,<br>
 It is not exactly epoch==10, but something like 10.02.
+<br>
+
+However, it looks like there is no need to worry about because between every run,<br>
+Epoch is defined by global step, global batch size, and number of records,<br>
+therefore, every epoch value `after_run` prints should be equal.<br>
+However just in case, record start epoch value and start time,
+and when epoch value is equal or bigger than the specific value,<br>
+print differences in both epoch and time, and epoch difference divided by time difference.
+<br>
 
 # 2. Configure tensorflow not to save logs in /tmp
 There is a suspicision that writing files of big size result in anomalies.
