@@ -21,13 +21,15 @@ There is a suspicision that writing files of big size result in anomalies.
 <br>
 
 Even though `log_dir` is not set, the checkpoints are recorded while training.<br>
-Inside the python script `/workspace/nvidia-examples/cnn/ nvutils/runner.py`, within the `train` method,<br>
+Inside the python script `/workspace/nvidia-examples/cnn/nvutils/runner.py`, within the `train` method,<br>
 set `classifier`'s config related member variables to `None`.
 
 Also, tensorflow uses a temporary model directory to write logs.<br>
 This can be avoided by editing file:<br>
-`/usr/local/lib/python3.6/dist-packages/tensorflow_estimator/python/estimator/estimator.py`<br>
-At line number 1821, edit lines like this:<br>
+> /usr/local/lib/python3.6/dist-packages/tensorflow_estimator/python/estimator/estimator.py
+<br>
+
+At line number 1821, edit lines like this:
 ```python
   elif getattr(config, 'model_dir', None) is None:
     pass
@@ -37,3 +39,14 @@ At line number 1821, edit lines like this:<br>
 ```
 After this edit, I observed that temporary folder is not created inside `/tmp`.
 However, will it really not write files by just letting the `model_dir` to be `None`?
+
+
+# 3. Eliminate network part
+`/usr/local/lib/python3.6/dist-packages/horovod/tensorflow/__init__.py`<br>
+The above python script implements how ring-allreduce works.<br>
+For example, see the line 311.
+<br>
+
+speed 2.0091563113145847 25.99881935119629 0.07727875193771586
+speed 2.0091563113145847 26.132620334625244 0.07688307891009649
+speed 2.0091563113145847 26.301871061325073 0.0763883415985906
