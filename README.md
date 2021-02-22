@@ -47,6 +47,19 @@ The above python script implements how ring-allreduce works.<br>
 For example, see the line 311.
 <br>
 
-speed 2.0091563113145847 25.99881935119629 0.07727875193771586
-speed 2.0091563113145847 26.132620334625244 0.07688307891009649
-speed 2.0091563113145847 26.301871061325073 0.0763883415985906
+# 4. baidu-allreduce
+Found a interesting repository on Github. The link is [here](https://github.com/baidu-research/baidu-allreduce).<br>
+The repository is made by baidu, the company which implemented ring-allreduce algorithm.<br>
+The repository is written in C++, and it demonstrates how the algorithm works in a brief.
+<br>
+
+I have run the code with two locality environments, 4-2-2, and 4-3-1.<br>
+The three nodes are all in the same rack, so they share the same farthest network distance.<br>
+Also, The node with the most processes has 4, which means they will have almost equal loads.
+<br>
+
+![image](img/210222-baidu-allreduce-Run-Time-locality-comparison-(8-GPUs).png)
+<br>
+
+Since ring-allreduce is irrelvant to number of nodes or process distribution across
+nodes, the result is quite astonishing.
