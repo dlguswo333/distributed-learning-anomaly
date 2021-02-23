@@ -94,8 +94,9 @@ for (int i = 0; i < size - 1; i++) {
 ```
 <br>
 
-It is a mere of demonstration of ring-allreduce, and does not know whether there are changes applied to
-horovod, implementation,<br>
+It is a mere of demonstration of ring-allreduce,<br>
+and does not know whether there are changes applied to horovod, implementation,<br>
 but horovod mentioned they replaced the implementation with NCCL, and made several API improvements.<br>
-Take a look at the [report](https://arxiv.org/pdf/1802.05799.pdf)
+Take a look at the section 4 Installing horovod, in this [report](https://arxiv.org/pdf/1802.05799.pdf) written by horovod team.<br>
+Right now, I could not find any actual implemented code with MPI APIs inside horovod repository.
 <br>
