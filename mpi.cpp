@@ -19,7 +19,7 @@ typedef struct{
 using namespace std;
 
 const double M=1000000;
-const int len=1000000000;
+const int len=1073741824;
 
 /*void func(int my_rank, int other_rank){
     int *my_buf=new int[len];
