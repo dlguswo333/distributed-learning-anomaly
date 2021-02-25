@@ -8,4 +8,4 @@ clean:
 	rm -f $(EXE)
 
 run:
-	mpiexec -np 2 $(EXE)
+	mpiexec --allow-run-as-root -np 2 $(EXE)

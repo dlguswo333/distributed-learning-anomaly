@@ -1,6 +1,7 @@
 #include <mpi.h>
 #include <iostream>
 #include <chrono>
+
 typedef struct{
     int *buf;
     int len;
@@ -17,7 +18,8 @@ typedef struct{
 
 using namespace std;
 
-int len=500000000;
+const double M=1000000;
+const int len=500000000;
 
 void func(int my_rank, int other_rank){
     int *my_buf=new int[len];
@@ -54,7 +56,7 @@ void improve_func(int my_rank, int other_rank){
 
     auto end=chrono::steady_clock::now();
 
-    cout << my_rank << chrono::duration_cast<chrono::microseconds>(end - start).count() << "\n";
+    cout << my_rank << chrono::duration_cast<chrono::microseconds>(end - start).count()/M << "\n";
 
     delete[] my_buf;
     delete[] other_buf;
