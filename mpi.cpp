@@ -19,7 +19,7 @@ typedef struct{
 using namespace std;
 
 const double M=1000000;
-const int len=1073741824;
+const long len=1073741824;
 
 /*void func(int my_rank, int other_rank){
     int *my_buf=new int[len];
@@ -44,12 +44,14 @@ const int len=1073741824;
 
 void send(int other_rank, int start, int end){
     int *other_buf=new int[len];
+    cout << "Sends " << end-start << " elements to " << other_rank << endl;
     MPI_Send(other_buf, end-start, MPI_INT, other_rank, 0, MPI_COMM_WORLD);
     return;
 }
 
 void recv(int other_rank, int start, int end){
     int *my_buf=new int[len];
+    cout << "Receives " << end-start << " elements from " << other_rank << endl;
     MPI_Recv(my_buf, end-start, MPI_INT, other_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     return;
 }
@@ -67,15 +69,15 @@ int main(int argc, char *argv[]){
     
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    cout << "Hello from " << rank << "/" << size << endl;
+    //cout << "Hello from " << rank << "/" << size << endl;
     if(rank==0){
         s=chrono::steady_clock::now();
     }
     if(rank<size/2){
-        send(rank+size/2, (len/size)*rank, (len/size)*(rank+1));
+        send(rank+size/2, (2*len/size)*(rank), (2*len/size)*(rank+1));
     }
     else{
-        recv(rank-size/2, (len/size)*rank, (len/size)*(rank+1));
+        recv(rank-size/2, (2*len/size)*(rank), (2*len/size)*(rank+1));
     }
     if(rank==0){
         e=chrono::steady_clock::now();
