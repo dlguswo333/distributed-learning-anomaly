@@ -41,47 +41,37 @@ void func(int my_rank, int other_rank){
     return;
 }
 
-void improve_func(int my_rank, int other_rank){
-    int *my_buf=new int[len];
+
+
+void send(int other_rank){
     int *other_buf=new int[len];
-    MPI_Request req;
-    pthread_t childs[2];
-
-    auto start=chrono::steady_clock::now();
-
-
-    MPI_Irecv(my_buf, len, MPI_INT, other_rank, 0, MPI_COMM_WORLD, &req);
     MPI_Send(other_buf, len, MPI_INT, other_rank, 0, MPI_COMM_WORLD);
-    MPI_Wait(&req, MPI_STATUS_IGNORE);
-
-    auto end=chrono::steady_clock::now();
-
-    cout << "wth?\n";
-    cout << my_rank << " : " << chrono::duration_cast<chrono::microseconds>(end - start).count()/M << "\n";
-
-    delete[] my_buf;
-    delete[] other_buf;
     return;
 }
-void recv(void *st){
 
+void recv(int other_rank){
+    int *my_buf=new int[len];
+    MPI_Recv(my_buf, len, MPI_INT, other_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    return;
 }
     
 int main(int argc, char *argv[]){
-    int rank;
+    int rank, size;
     int provided;
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     if(provided<MPI_THREAD_MULTIPLE){
         cout << "MPI does not provide thread level\n";
         MPI_Abort(MPI_COMM_WORLD, -1);
     }
+    
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    cout << "Hello from " << rank << endl;
-    if(rank==0){
-        func(0, 1);
+    cout << "Hello from " << rank << "/" << size << endl;
+    if(rank<size/2){
+        send(rank+size/2);
     }
     else{
-        func(1, 0);
+        recv(rank-size/2);
     }
     MPI_Finalize();
     return 0;
