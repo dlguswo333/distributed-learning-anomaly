@@ -100,3 +100,46 @@ but horovod mentioned they replaced the implementation with NCCL, and made sever
 Take a look at the section 4 Installing horovod, in this [report](https://arxiv.org/pdf/1802.05799.pdf) written by horovod team.<br>
 Right now, I could not find any actual implemented code with MPI APIs inside horovod repository.
 <br>
+
+However, baidu also has a reporitory built with tensorflow and ring-allreduce.<br>
+The ring-allreduce implementation is almost identical. I think I can make use of it.
+<br>
+
+The issue might come from that `send` and `recv` done by a thread are **not concurrent**.<br>
+Without supporting hardwares, MPI non-blocking APIs do not receive nor send data background.<br>
+It is like TCP protocol, where two processes must handshake to transport data.<br>
+Same goes with MPI. MPI APIs need CPU's attention.<br>
+Therefore, even if a process call `MPI_Irecv`and then `MPI_Send` and wait for the `MPI_Irecv`,<br>
+it does each send and receive sequentially.
+<br>
+
+Even if it might be true for MPI, I do not know if same goes with other APIs, such as NCCL.<br>
+I need to take a look at those other APIs.
+<br>
+
+# 5. How to Resolve
+There are two resolutions came to mind:<br>
+1. Implement asynchronous, background API.<br>
+2. Run send and receive functions on separate threads.<br>
+The former one is of course a lot more diffcult than the latter.
+<br>
+
+## Run send and receive functions on separate threads.
+I can create two child threads, and have them do send or receive concurrently.<br>
+Actually, there is no need of two child threads, what I mean is create<br>
+one child thread and have it run send or receive, then the main thread<br>
+can focus on doing the remaining one.
+<br>
+
+But the thing is whether child threads can call MPI APIs.<br>
+Hopefully, MPI does support, but the document says that multiple thread support is
+only lightly tested.<br>
+Check out the [link](https://www.open-mpi.org/doc/v4.0/man3/MPI_Init_thread.3.php#toc9).
+<br>
+
+Also, MPI_THREAD_MULTIPLE support should have been configured.<br>
+Run the command and see if the configured OPENMPI supports it:
+```bash
+ompi_info | grep -i thread
+```
+<br>
