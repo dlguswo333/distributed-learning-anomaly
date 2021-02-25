@@ -1,6 +1,8 @@
 #include <mpi.h>
+#include <omp.h>
 #include <iostream>
 #include <chrono>
+#include <string>
 
 typedef struct{
     int *buf;
@@ -59,9 +61,23 @@ void recv(int other_rank, int start, int end){
 int main(int argc, char *argv[]){
     int rank, size;
     int provided;
+    int num_threads=4;
     chrono::time_point<chrono::steady_clock> s;
     chrono::time_point<chrono::steady_clock> e;
+
+    /*
+    try{
+        num_threads=stoi(argv[1]);
+    }catch(int expn){
+        cout << "(executable) (# of child threads)\n";
+        return -1;
+    }
+    */
+
+    cout << num_threads << endl;
+
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
+
     if(provided<MPI_THREAD_MULTIPLE){
         cout << "MPI does not provide thread level\n";
         MPI_Abort(MPI_COMM_WORLD, -1);
@@ -72,12 +88,20 @@ int main(int argc, char *argv[]){
     //cout << "Hello from " << rank << "/" << size << endl;
     if(rank==0){
         s=chrono::steady_clock::now();
-    }
-    if(rank<size/2){
-        send(rank+size/2, (2*len/size)*(rank), (2*len/size)*(rank+1));
+        #pragma omp parallel for num_threads(num_threads)
+        for(int i=0;i<num_threads;++i){
+            auto thread_num=omp_get_thread_num();
+            //cout << "rank: " << rank << "thread_num: " << thread_num << endl;
+            send(rank+size/2, (len/num_threads)*(thread_num), (len/num_threads)*(thread_num+1));
+        }
     }
     else{
-        recv(rank-size/2, (2*len/size)*(rank), (2*len/size)*(rank+1));
+        #pragma omp parallel for num_threads(num_threads)
+        for(int i=0;i<num_threads;++i){
+            auto thread_num=omp_get_thread_num();
+            //cout << "rank: " << rank << "thread_num: " << thread_num << endl;
+            recv(rank-size/2, (len/num_threads)*(thread_num), (len/num_threads)*(thread_num+1));
+        }
     }
     if(rank==0){
         e=chrono::steady_clock::now();
