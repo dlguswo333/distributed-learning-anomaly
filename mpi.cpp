@@ -34,7 +34,7 @@ void func(int my_rank, int other_rank){
 
     auto end=chrono::steady_clock::now();
 
-    cout << my_rank << chrono::duration_cast<chrono::microseconds>(end - start).count() << "\n";
+    cout << my_rank << " : " << chrono::duration_cast<chrono::microseconds>(end - start).count()/M << "\n";
 
     delete[] my_buf;
     delete[] other_buf;
@@ -56,7 +56,8 @@ void improve_func(int my_rank, int other_rank){
 
     auto end=chrono::steady_clock::now();
 
-    cout << my_rank << chrono::duration_cast<chrono::microseconds>(end - start).count()/M << "\n";
+    cout << "wth?\n";
+    cout << my_rank << " : " << chrono::duration_cast<chrono::microseconds>(end - start).count()/M << "\n";
 
     delete[] my_buf;
     delete[] other_buf;
