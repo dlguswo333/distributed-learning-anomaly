@@ -58,7 +58,7 @@ The three nodes are all in the same rack, so they share the same farthest networ
 Also, The node with the most processes has 4, which means they will have almost equal loads.
 <br>
 
-![image](img/210222-baidu-allreduce-Run-Time-locality-comparison-(8-GPUs).png)
+![image](./img/210222-baidu-allreduce-Run-Time-locality-comparison-(8-CPUs).png)
 <br>
 
 Since ring-allreduce is irrelvant to number of nodes or process distribution across
