@@ -22,7 +22,7 @@ using namespace std;
 
 const double M=1000000;
 const long len=1073741824;
-
+int *my_buf=NULL, *other_buf=NULL;
 /*void func(int my_rank, int other_rank){
     int *my_buf=new int[len];
     int *other_buf=new int[len];
@@ -44,25 +44,25 @@ const long len=1073741824;
 
 
 
-void send(int other_rank, int start, int end){
-    int *other_buf=new int[len];
+void send(int other_rank, int thread_num, int start, int end){
     cout << "Sends " << end-start << " elements to " << other_rank << endl;
-    MPI_Send(other_buf, end-start, MPI_INT, other_rank, 0, MPI_COMM_WORLD);
+    MPI_Send(other_buf, end-start, MPI_INT, other_rank, thread_num, MPI_COMM_WORLD);
     return;
 }
 
-void recv(int other_rank, int start, int end){
-    int *my_buf=new int[len];
+void recv(int other_rank, int thread_num, int start, int end){
     cout << "Receives " << end-start << " elements from " << other_rank << endl;
-    MPI_Recv(my_buf, end-start, MPI_INT, other_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(my_buf, end-start, MPI_INT, other_rank, thread_num, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     return;
 }
     
 int main(int argc, char *argv[]){
     int rank, size;
     int provided;
-    int num_threads=4;
+    int num_threads=1;
     chrono::time_point<chrono::steady_clock> s;
+    other_buf=new int[len];
+    my_buf=new int[len];
     chrono::time_point<chrono::steady_clock> e;
 
     /*
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]){
         for(int i=0;i<num_threads;++i){
             auto thread_num=omp_get_thread_num();
             //cout << "rank: " << rank << "thread_num: " << thread_num << endl;
-            send(rank+size/2, (len/num_threads)*(thread_num), (len/num_threads)*(thread_num+1));
+            send(rank+size/2, thread_num, (len/num_threads)*(thread_num), (len/num_threads)*(thread_num+1));
         }
     }
     else{
@@ -100,7 +100,7 @@ int main(int argc, char *argv[]){
         for(int i=0;i<num_threads;++i){
             auto thread_num=omp_get_thread_num();
             //cout << "rank: " << rank << "thread_num: " << thread_num << endl;
-            recv(rank-size/2, (len/num_threads)*(thread_num), (len/num_threads)*(thread_num+1));
+            recv(rank-size/2, thread_num, (len/num_threads)*(thread_num), (len/num_threads)*(thread_num+1));
         }
     }
     if(rank==0){
