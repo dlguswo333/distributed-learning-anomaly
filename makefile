@@ -1,7 +1,7 @@
 SHELL:=/bin/bash
 NP=2
 HALF_NP=1
-NUM_THREAD=4
+NUM_THREAD=16
 SINGLE_SRC=single.cpp
 THREAD_SRC=thread.cpp
 SINGLE_EXE=single

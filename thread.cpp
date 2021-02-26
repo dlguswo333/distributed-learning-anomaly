@@ -87,6 +87,7 @@ int main(int argc, char *argv[]){
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     //cout << "Hello from " << rank << "/" << size << endl;
     if(rank==0){
+        #pragma omp parallel for num_threads(num_threads)
         for(int i=0;i<num_threads;++i){
             auto thread_num=omp_get_thread_num();
             MPI_Get_processor_name(hostname, &name_len);
@@ -98,6 +99,7 @@ int main(int argc, char *argv[]){
         }
     }
     else{
+        #pragma omp parallel for num_threads(num_threads)
         for(int i=0;i<num_threads;++i){
             auto thread_num=omp_get_thread_num();
             //cout << "rank: " << rank << " " << (len/num_threads) << endl;
