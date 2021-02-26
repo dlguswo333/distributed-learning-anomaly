@@ -6,24 +6,10 @@
 #include <chrono>
 #include <string>
 
-typedef struct{
-    int *buf;
-    int len;
-    int other_rank;
-    MPI_Request *req;
-}St1;
-
-typedef struct{
-    int *buf;
-    int len;
-    int other_rank;
-    MPI_Request *req;
-}St2;
-
 using namespace std;
 
 const double M=1000000;
-const long len=1<<30;
+long len=0;
 int *my_buf=NULL, *other_buf=NULL;
 /*void func(int my_rank, int other_rank){
     int *my_buf=new int[len];
@@ -63,18 +49,20 @@ int main(int argc, char *argv[]){
     int provided;
     int num_threads=4;
     chrono::time_point<chrono::steady_clock> s;
-    other_buf=new int[len];
-    my_buf=new int[len];
     char hostname[20];
     int name_len;
     chrono::time_point<chrono::steady_clock> e;
 
     try{
-        num_threads=stoi(argv[1]);
-    }catch(int expn){
-        cout << "(executable) (# of child threads)\n";
+        len=stoi(argv[1]);
+        num_threads=stoi(argv[2]);
+    }catch(...){
+        cout << "Usage: (executable) (buffer length) (# of child threads)\n";
         return -1;
     }
+
+    other_buf=new int[len];
+    my_buf=new int[len];
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
 

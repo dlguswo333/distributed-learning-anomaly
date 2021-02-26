@@ -8,7 +8,7 @@
 using namespace std;
 
 const double M=1000000;
-const long len=1<<20;
+long len=0;
 int *my_buf=NULL, *other_buf=NULL;
 
 void send(int other_rank, int start, int end){
@@ -26,11 +26,19 @@ void recv(int other_rank, int start, int end){
 int main(int argc, char *argv[]){
     int rank, size;
     chrono::time_point<chrono::steady_clock> s;
-    other_buf=new int[len];
-    my_buf=new int[len];
     char hostname[20];
     int name_len;
     chrono::time_point<chrono::steady_clock> e;
+
+    try{
+        len=stoi(argv[1]);
+    }catch(...){
+        cout << "Usage: (executable) (buffer length)\n";
+        return -1;
+    }
+
+    other_buf=new int[len];
+    my_buf=new int[len];
 
     MPI_Init(&argc, &argv);
     
