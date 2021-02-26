@@ -1,3 +1,5 @@
+// thread.cpp
+// It runs one sender and one receiver but they are multithreaded, with MPI and openmp.
 #include <mpi.h>
 #include <omp.h>
 #include <iostream>
@@ -46,13 +48,13 @@ int *my_buf=NULL, *other_buf=NULL;
 
 void send(int other_rank, int thread_num, int start, int end){
     cout << "Sends " << end-start << " elements to " << other_rank << endl;
-    //MPI_Send(other_buf, end-start, MPI_INT, other_rank, thread_num, MPI_COMM_WORLD);
+    MPI_Send(other_buf, end-start, MPI_INT, other_rank, thread_num, MPI_COMM_WORLD);
     return;
 }
 
 void recv(int other_rank, int thread_num, int start, int end){
     cout << "Receives " << end-start << " elements from " << other_rank << endl;
-    //MPI_Recv(my_buf, end-start, MPI_INT, other_rank, thread_num, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(my_buf, end-start, MPI_INT, other_rank, thread_num, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     return;
 }
     
@@ -67,14 +69,12 @@ int main(int argc, char *argv[]){
     int name_len;
     chrono::time_point<chrono::steady_clock> e;
 
-    /*
     try{
         num_threads=stoi(argv[1]);
     }catch(int expn){
         cout << "(executable) (# of child threads)\n";
         return -1;
     }
-    */
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
 
@@ -87,7 +87,6 @@ int main(int argc, char *argv[]){
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     //cout << "Hello from " << rank << "/" << size << endl;
     if(rank==0){
-        #pragma omp parallel for num_threads(num_threads)
         for(int i=0;i<num_threads;++i){
             auto thread_num=omp_get_thread_num();
             MPI_Get_processor_name(hostname, &name_len);
@@ -99,7 +98,6 @@ int main(int argc, char *argv[]){
         }
     }
     else{
-        #pragma omp parallel for num_threads(num_threads)
         for(int i=0;i<num_threads;++i){
             auto thread_num=omp_get_thread_num();
             //cout << "rank: " << rank << " " << (len/num_threads) << endl;
