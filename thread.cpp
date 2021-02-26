@@ -33,14 +33,14 @@ int *my_buf=NULL, *other_buf=NULL;
 
 
 void send(int other_rank, int thread_num, int start, int end){
-    cout << "Sends " << end-start << " elements to " << other_rank << endl;
     MPI_Send(other_buf, end-start, MPI_INT, other_rank, thread_num, MPI_COMM_WORLD);
+    cout << "Sent " << end-start << " elements to " << other_rank << endl;
     return;
 }
 
 void recv(int other_rank, int thread_num, int start, int end){
-    cout << "Receives " << end-start << " elements from " << other_rank << endl;
     MPI_Recv(my_buf, end-start, MPI_INT, other_rank, thread_num, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    cout << "Received " << end-start << " elements from " << other_rank << endl;
     return;
 }
     
