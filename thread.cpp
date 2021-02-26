@@ -23,7 +23,7 @@ typedef struct{
 using namespace std;
 
 const double M=1000000;
-const long len=1073741824;
+const long len=1<<20;
 int *my_buf=NULL, *other_buf=NULL;
 /*void func(int my_rank, int other_rank){
     int *my_buf=new int[len];

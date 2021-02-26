@@ -1,7 +1,7 @@
 SHELL:=/bin/bash
 NP=2
 HALF_NP=1
-NUM_THREAD=2
+NUM_THREAD=4
 SINGLE_SRC=single.cpp
 THREAD_SRC=thread.cpp
 SINGLE_EXE=single
@@ -9,10 +9,10 @@ THREAD_EXE=thread
 
 all: single thread
 	
-single:
+single: $(SINGLE_SRC)
 	mpic++ $(SINGLE_SRC) -o $(SINGLE_EXE)
 
-thread:
+thread: $(THREAD_SRC)
 	mpic++ $(THREAD_SRC) -fopenmp -o $(THREAD_EXE)
 
 clean:
