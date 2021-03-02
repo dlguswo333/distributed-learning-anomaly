@@ -32,14 +32,14 @@ int *my_buf=NULL, *other_buf=NULL;
 
 
 
-void send(int other_rank, int thread_num, int start, int end){
-    MPI_Send(other_buf, end-start, MPI_INT, other_rank, thread_num, MPI_COMM_WORLD);
+void send(int other_rank, int tag, int start, int end){
+    MPI_Send(other_buf, end-start, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
     cout << "Sent " << end-start << " elements to " << other_rank << endl;
     return;
 }
 
-void recv(int other_rank, int thread_num, int start, int end){
-    MPI_Recv(my_buf, end-start, MPI_INT, other_rank, thread_num, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+void recv(int other_rank, int tag, int start, int end){
+    MPI_Recv(my_buf, end-start, MPI_INT, other_rank, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     cout << "Received " << end-start << " elements from " << other_rank << endl;
     return;
 }
@@ -47,7 +47,6 @@ void recv(int other_rank, int thread_num, int start, int end){
 int main(int argc, char *argv[]){
     int rank, size;
     int provided;
-    int num_threads=4;
     chrono::time_point<chrono::steady_clock> s;
     char hostname[20];
     int name_len;
@@ -55,9 +54,8 @@ int main(int argc, char *argv[]){
 
     try{
         len=stoi(argv[1]);
-        num_threads=stoi(argv[2]);
     }catch(...){
-        cout << "Usage: (executable) (buffer length) (# of child threads)\n";
+        cout << "Usage: (executable) (buffer length)\n";
         return -1;
     }
 
@@ -73,26 +71,18 @@ int main(int argc, char *argv[]){
     
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    //cout << "Hello from " << rank << "/" << size << endl;
-    if(rank==0){
-        #pragma omp parallel for num_threads(num_threads)
-        for(int i=0;i<num_threads;++i){
-            auto thread_num=omp_get_thread_num();
-            MPI_Get_processor_name(hostname, &name_len);
-            //cout << "rank: " << rank << " " << (len/num_threads) << endl;
-            s=chrono::steady_clock::now();
-            send(rank+size/2, thread_num, (len/num_threads)*(thread_num), (len/num_threads)*(thread_num+1));
-            e=chrono::steady_clock::now();
-            //cout << rank << " " << thread_num << " " << chrono::duration<double>(e.time_since_epoch()).count() << endl;
-            //cout << hostname << " " << rank << " " << thread_num << " " << chrono::duration_cast<chrono::microseconds>(e - s).count()/M << endl;
+    // Every process spawns two threads.
+    // Thread 0 sends.
+    // Thread 1 receives.
+    #pragma omp parallel for num_threads(2)
+    for(int i=0;i<2;++i){
+        int send_to=(rank+1)%size;
+        int recv_from=(rank-1+size)%size;
+        if(i==0){
+            send(send_to, 0, 0, len);
         }
-    }
-    else{
-        #pragma omp parallel for num_threads(num_threads)
-        for(int i=0;i<num_threads;++i){
-            auto thread_num=omp_get_thread_num();
-            //cout << "rank: " << rank << " " << (len/num_threads) << endl;
-            recv(rank-size/2, thread_num, (len/num_threads)*(thread_num), (len/num_threads)*(thread_num+1));
+        else{
+            recv(recv_from, 0, 0, len);
         }
     }
     /*

@@ -1,5 +1,5 @@
 // single.cpp
-// It runs each one sender and one receiver alone with MPI.
+// It runs one sender and one receiver but they are multithreaded, with MPI and openmp.
 #include <mpi.h>
 #include <iostream>
 #include <chrono>
@@ -10,21 +10,42 @@ using namespace std;
 const double M=1000000;
 long len=0;
 int *my_buf=NULL, *other_buf=NULL;
+/*void func(int my_rank, int other_rank){
+    int *my_buf=new int[len];
+    int *other_buf=new int[len];
+    MPI_Request req;
 
-void send(int other_rank, int start, int end){
-    cout << "Sends " << end-start << " elements to " << other_rank << endl;
-    MPI_Send(other_buf, end-start, MPI_INT, other_rank, 0, MPI_COMM_WORLD);
+
+    MPI_Irecv(my_buf, len, MPI_INT, other_rank, 0, MPI_COMM_WORLD, &req);
+    MPI_Send(other_buf, len, MPI_INT, other_rank, 0, MPI_COMM_WORLD);
+    MPI_Wait(&req, MPI_STATUS_IGNORE);
+
+    auto end=chrono::steady_clock::now();
+
+    cout << my_rank << " : " << chrono::duration_cast<chrono::microseconds>(end - start).count()/M << "\n";
+
+    delete[] my_buf;
+    delete[] other_buf;
+    return;
+}*/
+
+
+
+void send(int other_rank, int tag, int start, int end){
+    MPI_Send(other_buf, end-start, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
+    cout << "Sent " << end-start << " elements to " << other_rank << endl;
     return;
 }
 
-void recv(int other_rank, int start, int end){
-    cout << "Receives " << end-start << " elements from " << other_rank << endl;
-    MPI_Recv(my_buf, end-start, MPI_INT, other_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+void recv(int other_rank, int tag, int start, int end){
+    MPI_Recv(my_buf, end-start, MPI_INT, other_rank, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    cout << "Received " << end-start << " elements from " << other_rank << endl;
     return;
 }
     
 int main(int argc, char *argv[]){
     int rank, size;
+    int provided;
     chrono::time_point<chrono::steady_clock> s;
     char hostname[20];
     int name_len;
@@ -40,29 +61,27 @@ int main(int argc, char *argv[]){
     other_buf=new int[len];
     my_buf=new int[len];
 
-    MPI_Init(&argc, &argv);
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
+
+    if(provided<MPI_THREAD_MULTIPLE){
+        cout << "MPI does not provide thread level\n";
+        MPI_Abort(MPI_COMM_WORLD, -1);
+    }
     
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    
-    //cout << "Hello from " << rank << "/" << size << endl;
-    if(rank==0){
-        MPI_Get_processor_name(hostname, &name_len);
-        //cout << "rank: " << rank << " " << (len/num_threads) << endl;
-        s=chrono::steady_clock::now();
-        send(rank+size/2, 0, len);
-        e=chrono::steady_clock::now();
-        //cout << hostname << " " << rank << " " << thread_num << " " << chrono::duration_cast<chrono::microseconds>(e - s).count()/M << endl;
+
+    int send_to=(rank+1)%size;
+    int recv_from=(rank-1+size)%size;
+    if(rank%2==0){
+        send(send_to, 0, 0, len);
+        recv(recv_from, 0, 0, len);
     }
     else{
-        //cout << "rank: " << rank << " " << (len/num_threads) << endl;
-        recv(rank-size/2, 0, len);
+        recv(recv_from, 0, 0, len);
+        send(send_to, 0, 0, len);
     }
-    /*
-    if(rank==0){
-        cout << rank << " : " << chrono::duration_cast<chrono::microseconds>(e - s).count()/M << "\n";
-    }
-    */
+
     delete[] my_buf;
     delete[] other_buf;
     MPI_Finalize();

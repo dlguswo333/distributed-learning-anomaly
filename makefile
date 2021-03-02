@@ -1,7 +1,7 @@
 SHELL:=/bin/bash
-NP=2
-HALF_NP=1
-LEN=65536
+NP=8
+HALF_NP=4
+LEN=1073741824
 NUM_THREAD=2
 SINGLE_SRC=single.cpp
 THREAD_SRC=thread.cpp
@@ -26,10 +26,10 @@ clean:
 
 run-local:
 	time mpiexec --allow-run-as-root -np $(NP) $(SINGLE_EXE) $(LEN) 
-	time mpiexec --allow-run-as-root -np $(NP) $(THREAD_EXE) $(LEN) $(NUM_THREAD)
-	time mpiexec --allow-run-as-root -np $(NP) $(SERIAL_EXE) $(LEN) $(NUM_THREAD)
+	time mpiexec --allow-run-as-root -np $(NP) $(THREAD_EXE) $(LEN) 
+	#time mpiexec --allow-run-as-root -np $(NP) $(SERIAL_EXE) $(LEN) $(NUM_THREAD)
 
 run-remote:
 	time mpiexec --allow-run-as-root -mca btl_tcp_if_exclude eno0,eno1 --np $(NP) -H localhost:$(HALF_NP),tb3-ib:$(HALF_NP) -mca plm_rsh_args "-p 3333" $(SINGLE_EXE) $(LEN) 
-	time mpiexec --allow-run-as-root -mca btl_tcp_if_exclude eno0,eno1 --np $(NP) -H localhost:$(HALF_NP),tb3-ib:$(HALF_NP) -mca plm_rsh_args "-p 3333" $(THREAD_EXE) $(LEN) $(NUM_THREAD)
-	time mpiexec --allow-run-as-root -mca btl_tcp_if_exclude eno0,eno1 --np $(NP) -H localhost:$(HALF_NP),tb3-ib:$(HALF_NP) -mca plm_rsh_args "-p 3333" $(THREAD_EXE) $(LEN) $(NUM_THREAD)
+	time mpiexec --allow-run-as-root -mca btl_tcp_if_exclude eno0,eno1 --np $(NP) -H localhost:$(HALF_NP),tb3-ib:$(HALF_NP) -mca plm_rsh_args "-p 3333" $(THREAD_EXE) $(LEN) 
+	#time mpiexec --allow-run-as-root -mca btl_tcp_if_exclude eno0,eno1 --np $(NP) -H localhost:$(HALF_NP),tb3-ib:$(HALF_NP) -mca plm_rsh_args "-p 3333" $(SERIAL_EXE) $(LEN) $(NUM_THREAD)
