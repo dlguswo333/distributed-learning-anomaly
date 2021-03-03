@@ -10,7 +10,7 @@ using namespace std;
 
 const double M=1000000;
 long len=0;
-int *my_buf=NULL, *other_buf=NULL;
+int *buf=NULL;
 /*void func(int my_rank, int other_rank){
     int *my_buf=new int[len];
     int *other_buf=new int[len];
@@ -33,13 +33,13 @@ int *my_buf=NULL, *other_buf=NULL;
 
 
 void send(int other_rank, int tag, int start, int end){
-    MPI_Send(other_buf, end-start, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
+    MPI_Send(buf, end-start, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
     cout << "Sent " << end-start << " elements to " << other_rank << endl;
     return;
 }
 
 void recv(int other_rank, int tag, int start, int end){
-    MPI_Recv(my_buf, end-start, MPI_INT, other_rank, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(buf+len, end-start, MPI_INT, other_rank, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     cout << "Received " << end-start << " elements from " << other_rank << endl;
     return;
 }
@@ -57,8 +57,7 @@ int main(int argc, char *argv[]){
         return -1;
     }
 
-    other_buf=new int[len];
-    my_buf=new int[len];
+    buf=new int[len*2];
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
 
@@ -88,15 +87,9 @@ int main(int argc, char *argv[]){
     }
     
     auto e=chrono::system_clock::now();
-    cout << rank << " " << chrono::duration_cast<chrono::milliseconds>(e-s).count()/(double)1000 << endl;
+    cout << rank << " " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
 
-    /*
-    if(rank==0){
-        cout << rank << " : " << chrono::duration_cast<chrono::microseconds>(e - s).count()/M << "\n";
-    }
-    */
-    delete[] my_buf;
-    delete[] other_buf;
+    delete[] buf;
     MPI_Finalize();
     return 0;
 }

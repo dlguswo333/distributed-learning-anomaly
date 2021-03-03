@@ -83,7 +83,7 @@ int main(int argc, char *argv[]){
     }
 
     auto e=chrono::system_clock::now();
-    cout << rank << " " << chrono::duration_cast<chrono::milliseconds>(e-s).count()/(double)1000 << endl;
+    cout << rank << " " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
 
     delete[] my_buf;
     delete[] other_buf;
