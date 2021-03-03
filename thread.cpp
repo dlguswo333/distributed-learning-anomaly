@@ -87,7 +87,7 @@ int main(int argc, char *argv[]){
             auto s=chrono::system_clock::now();
             recv(recv_from, 0, 0, len);
             auto e=chrono::system_clock::now();
-            cout << rank << " send " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
+            cout << rank << " recv " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
         }
     }
     

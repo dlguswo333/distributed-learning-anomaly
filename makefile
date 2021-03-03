@@ -1,7 +1,7 @@
 SHELL:=/bin/bash
 NP=2
 HALF_NP=1
-LEN=1073741824
+LEN=1000000
 NUM_THREAD=2
 SINGLE_SRC=single.cpp
 THREAD_SRC=thread.cpp
