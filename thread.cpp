@@ -69,7 +69,6 @@ int main(int argc, char *argv[]){
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    auto s=chrono::system_clock::now();
 
     // Every process spawns two threads.
     // Thread 0 sends.
@@ -79,15 +78,19 @@ int main(int argc, char *argv[]){
         int send_to=(rank+1)%size;
         int recv_from=(rank-1+size)%size;
         if(i==0){
+            auto s=chrono::system_clock::now();
             send(send_to, 0, 0, len);
+            auto e=chrono::system_clock::now();
+            cout << rank << " send " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
         }
         else{
+            auto s=chrono::system_clock::now();
             recv(recv_from, 0, 0, len);
+            auto e=chrono::system_clock::now();
+            cout << rank << " send " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
         }
     }
     
-    auto e=chrono::system_clock::now();
-    cout << rank << " " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
 
     delete[] buf;
     MPI_Finalize();
