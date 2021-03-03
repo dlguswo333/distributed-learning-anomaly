@@ -46,10 +46,8 @@ void recv(int other_rank, int tag, int start, int end){
 int main(int argc, char *argv[]){
     int rank, size;
     int provided;
-    chrono::time_point<chrono::steady_clock> s;
     char hostname[20];
     int name_len;
-    chrono::time_point<chrono::steady_clock> e;
 
     try{
         len=stoi(argv[1]);
@@ -71,6 +69,8 @@ int main(int argc, char *argv[]){
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+    auto s=chrono::system_clock::now();
+
     int send_to=(rank+1)%size;
     int recv_from=(rank-1+size)%size;
     if(rank%2==0){
@@ -81,6 +81,9 @@ int main(int argc, char *argv[]){
         recv(recv_from, 0, 0, len);
         send(send_to, 0, 0, len);
     }
+
+    auto e=chrono::system_clock::now();
+    cout << rank << " " << chrono::duration_cast<chrono::milliseconds>(e-s).count()/(double)1000 << endl;
 
     delete[] my_buf;
     delete[] other_buf;
