@@ -32,15 +32,15 @@ int *buf=NULL;
 
 
 
-void send(int other_rank, int tag, int start, int end){
-    MPI_Send(buf, end-start, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
-    cout << "Sent " << end-start << " elements to " << other_rank << endl;
+void send(int other_rank, int tag, int start, int len){
+    MPI_Send(buf+start, len, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
+    cout << "Sent " << len << " elements to " << other_rank << endl;
     return;
 }
 
-void recv(int other_rank, int tag, int start, int end){
-    MPI_Recv(buf+len, end-start, MPI_INT, other_rank, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    cout << "Received " << end-start << " elements from " << other_rank << endl;
+void recv(int other_rank, int tag, int start, int len){
+    MPI_Recv(buf+start, len, MPI_INT, other_rank, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    cout << "Received " << len << " elements from " << other_rank << endl;
     return;
 }
     
@@ -79,13 +79,13 @@ int main(int argc, char *argv[]){
         int recv_from=(rank-1+size)%size;
         if(i==0){
             auto s=chrono::system_clock::now();
-            send(send_to, 0, 0, len);
+            send(send_to, send_to, 0, len);
             auto e=chrono::system_clock::now();
             cout << rank << " send " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
         }
         else{
             auto s=chrono::system_clock::now();
-            recv(recv_from, 0, 0, len);
+            recv(recv_from, rank, len, len);
             auto e=chrono::system_clock::now();
             cout << rank << " recv " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
         }
