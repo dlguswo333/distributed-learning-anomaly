@@ -34,13 +34,13 @@ MPI_Comm comms[2];
 
 
 void send(int other_rank, int tag, int start, int len){
-    MPI_Send(buf+start, len, MPI_INT, other_rank, tag, comms[0]);
+    MPI_Send(buf+start, len, MPI_INT, other_rank, tag, comms[other_rank%2]);
     cout << "Sent " << len << " elements to " << other_rank << endl;
     return;
 }
 
 void recv(int other_rank, int tag, int start, int len){
-    MPI_Recv(buf+start, len, MPI_INT, other_rank, tag, comms[1], MPI_STATUS_IGNORE);
+    MPI_Recv(buf+start, len, MPI_INT, other_rank, tag, comms[(other_rank+1)%2], MPI_STATUS_IGNORE);
     cout << "Received " << len << " elements from " << other_rank << endl;
     return;
 }
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]){
     }
 
     try{
-        buf=new int[len*2];
+        buf=new int[(long)len*2];
     }catch( ... ){
         cout << "Allocating memory failed.\n";
         return -1;
