@@ -8,7 +8,7 @@
 using namespace std;
 
 const double M=1000000;
-long len=0;
+int len=0;
 int *my_buf=NULL, *other_buf=NULL;
 /*void func(int my_rank, int other_rank){
     int *my_buf=new int[len];
