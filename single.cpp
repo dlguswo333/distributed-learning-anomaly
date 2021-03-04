@@ -33,13 +33,13 @@ int *buf=NULL;
 
 void send(int other_rank, int tag, int start, int len){
     MPI_Send(buf+start, len, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
-    cout << "Sent " << end-start << " elements to " << other_rank << endl;
+    cout << "Sent " << len << " elements to " << other_rank << endl;
     return;
 }
 
 void recv(int other_rank, int tag, int start, int len){
     MPI_Recv(buf+start, len, MPI_INT, other_rank, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    cout << "Received " << end-start << " elements from " << other_rank << endl;
+    cout << "Received " << len << " elements from " << other_rank << endl;
     return;
 }
     
@@ -84,8 +84,7 @@ int main(int argc, char *argv[]){
     auto e=chrono::system_clock::now();
     cout << rank << " " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
 
-    delete[] my_buf;
-    delete[] other_buf;
+    delete[] buf;
     MPI_Finalize();
     return 0;
 }
