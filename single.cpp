@@ -9,7 +9,7 @@ using namespace std;
 
 const double M=1000000;
 int len=0;
-int *my_buf=NULL, *other_buf=NULL;
+int *buf=NULL;
 /*void func(int my_rank, int other_rank){
     int *my_buf=new int[len];
     int *other_buf=new int[len];
@@ -31,14 +31,14 @@ int *my_buf=NULL, *other_buf=NULL;
 
 
 
-void send(int other_rank, int tag, int start, int end){
-    MPI_Send(other_buf, end-start, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
+void send(int other_rank, int tag, int start, int len){
+    MPI_Send(buf+start, len, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
     cout << "Sent " << end-start << " elements to " << other_rank << endl;
     return;
 }
 
-void recv(int other_rank, int tag, int start, int end){
-    MPI_Recv(my_buf, end-start, MPI_INT, other_rank, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+void recv(int other_rank, int tag, int start, int len){
+    MPI_Recv(buf+start, len, MPI_INT, other_rank, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     cout << "Received " << end-start << " elements from " << other_rank << endl;
     return;
 }
@@ -56,8 +56,7 @@ int main(int argc, char *argv[]){
         return -1;
     }
 
-    other_buf=new int[len];
-    my_buf=new int[len];
+    buf=new int[(long)len*2];
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
 
@@ -74,12 +73,12 @@ int main(int argc, char *argv[]){
     int send_to=(rank+1)%size;
     int recv_from=(rank-1+size)%size;
     if(rank%2==0){
-        send(send_to, 0, 0, len);
-        recv(recv_from, 0, 0, len);
+        send(send_to, 0, 0, len/size);
+        recv(recv_from, 0, len, len/size);
     }
     else{
-        recv(recv_from, 0, 0, len);
-        send(send_to, 0, 0, len);
+        recv(recv_from, 0, len, len/size);
+        send(send_to, 0, 0, len/size);
     }
 
     auto e=chrono::system_clock::now();

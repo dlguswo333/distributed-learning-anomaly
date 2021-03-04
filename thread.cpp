@@ -89,13 +89,13 @@ int main(int argc, char *argv[]){
         int recv_from=(rank-1+size)%size;
         if(i==0){
             auto s=chrono::system_clock::now();
-            send(send_to, send_to, 0, len);
+            send(send_to, send_to, 0, len/size);
             auto e=chrono::system_clock::now();
             cout << rank << " send " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
         }
         else{
             auto s=chrono::system_clock::now();
-            recv(recv_from, rank, len, len);
+            recv(recv_from, rank, len, len/size);
             auto e=chrono::system_clock::now();
             cout << rank << " recv " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
         }
