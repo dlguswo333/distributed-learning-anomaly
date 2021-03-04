@@ -11,6 +11,7 @@ using namespace std;
 const double M=1000000;
 int len=0;
 int *buf=NULL;
+MPI_Comm comms[2];
 /*void func(int my_rank, int other_rank){
     int *my_buf=new int[len];
     int *other_buf=new int[len];
@@ -33,13 +34,13 @@ int *buf=NULL;
 
 
 void send(int other_rank, int tag, int start, int len){
-    MPI_Send(buf+start, len, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
+    MPI_Send(buf+start, len, MPI_INT, other_rank, tag, comms[0]);
     cout << "Sent " << len << " elements to " << other_rank << endl;
     return;
 }
 
 void recv(int other_rank, int tag, int start, int len){
-    MPI_Recv(buf+start, len, MPI_INT, other_rank, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(buf+start, len, MPI_INT, other_rank, tag, comms[1], MPI_STATUS_IGNORE);
     cout << "Received " << len << " elements from " << other_rank << endl;
     return;
 }
@@ -57,7 +58,12 @@ int main(int argc, char *argv[]){
         return -1;
     }
 
-    buf=new int[len*2];
+    try{
+        buf=new int[len*2];
+    }catch( ... ){
+        cout << "Allocating memory failed.\n";
+        return -1;
+    }
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
 
@@ -69,6 +75,10 @@ int main(int argc, char *argv[]){
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+    // Will it really work? To duplicate the communicator.
+    for(int i=0;i<2;++i){
+        MPI_Comm_dup(MPI_COMM_WORLD, &comms[i]);
+    }
 
     // Every process spawns two threads.
     // Thread 0 sends.
