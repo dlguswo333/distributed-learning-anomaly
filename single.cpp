@@ -29,20 +29,6 @@ int *buf=NULL;
     delete[] other_buf;
     return;
 }*/
-
-
-
-void send(int other_rank, int tag, int start, int len){
-    MPI_Send(buf+start, len, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
-    cout << "Sent " << len << " elements to " << other_rank << endl;
-    return;
-}
-
-void recv(int other_rank, int tag, int start, int len){
-    MPI_Recv(buf+start, len, MPI_INT, other_rank, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    cout << "Received " << len << " elements from " << other_rank << endl;
-    return;
-}
     
 int main(int argc, char *argv[]){
     int rank, size;
@@ -69,25 +55,19 @@ int main(int argc, char *argv[]){
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+    MPI_Status recv_stat;
+    MPI_Request recv_req;
 
     int send_to=(rank+1)%size;
     int recv_from=(rank-1+size)%size;
-    if(rank%2==0){
-        Timer t;
-        cout << rank << " send " << t.get_now() << endl;
-        send(send_to, 0, 0, len/size);
-        cout << rank << " sent " << t.get_now() << endl;
-        recv(recv_from, 0, len, len/size);
-        cout << rank << " received " << t.get_now() << endl;
-    }
-    else{
-        Timer t;
-        cout << rank << " send " << t.get_now() << endl;
-        recv(recv_from, 0, len, len/size);
-        cout << rank << " sent " << t.get_now() << endl;
-        send(send_to, 0, 0, len/size);
-        cout << rank << " received " << t.get_now() << endl;
-    }
+
+    Timer t;
+
+    MPI_Irecv(buf, len/size, MPI_INT, recv_from, rank, MPI_COMM_WORLD, &recv_req);
+    MPI_Send(buf+len, len/size, MPI_INT, send_to, send_to, MPI_COMM_WORLD);
+    cout << rank << " sent " << t.get_now() << endl;
+    MPI_Wait(&recv_req, &recv_stat);
+    cout << rank << " tested " << t.get_now() << endl;
 
 
     delete[] buf;
