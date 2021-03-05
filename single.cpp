@@ -62,12 +62,14 @@ int main(int argc, char *argv[]){
     int recv_from=(rank-1+size)%size;
 
     Timer t;
+    t.start();
 
     MPI_Irecv(buf, len/size, MPI_INT, recv_from, rank, MPI_COMM_WORLD, &recv_req);
+    cout << rank << " Irecv " << t.seconds() << endl;
     MPI_Send(buf+len, len/size, MPI_INT, send_to, send_to, MPI_COMM_WORLD);
-    cout << rank << " sent " << t.get_now() << endl;
+    cout << rank << " sent " << t.seconds() << endl;
     MPI_Wait(&recv_req, &recv_stat);
-    cout << rank << " tested " << t.get_now() << endl;
+    cout << rank << " tested " << t.seconds() << endl;
 
 
     delete[] buf;
