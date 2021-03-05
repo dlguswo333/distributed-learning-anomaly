@@ -6,6 +6,7 @@ NUM_THREAD=2
 SINGLE_SRC=single.cpp
 THREAD_SRC=thread.cpp
 SERIAL_SRC=serial.cpp
+TIMER_SRC=timer.cpp
 SINGLE_EXE=single
 THREAD_EXE=thread
 SERIAL_EXE=serial
@@ -13,13 +14,13 @@ SERIAL_EXE=serial
 all: single thread serial
 	
 single: $(SINGLE_SRC)
-	mpic++ $(SINGLE_SRC) -o $(SINGLE_EXE)
+	mpic++ $(SINGLE_SRC) $(TIMER_SRC) -o $(SINGLE_EXE)
 
 thread: $(THREAD_SRC)
-	mpic++ $(THREAD_SRC) -fopenmp -o $(THREAD_EXE)
+	mpic++ $(THREAD_SRC) $(TIMER_SRC) -fopenmp -o $(THREAD_EXE)
 
 serial: $(SERIAL_SRC)
-	mpic++ $(SERIAL_SRC) -o $(SERIAL_EXE)
+	mpic++ $(SERIAL_SRC) $(TIMER_SRC) -o $(SERIAL_EXE)
 
 clean:
 	rm -f $(SINGLE_EXE) $(THREAD_EXE) $(SERIAL_EXE)

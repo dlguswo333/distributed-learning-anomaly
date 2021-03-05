@@ -4,6 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include <string>
+#include "timer.h"
 
 using namespace std;
 
@@ -68,21 +69,26 @@ int main(int argc, char *argv[]){
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    auto s=chrono::system_clock::now();
 
     int send_to=(rank+1)%size;
     int recv_from=(rank-1+size)%size;
     if(rank%2==0){
+        Timer t;
+        cout << rank << " send " << t.get_now() << endl;
         send(send_to, 0, 0, len/size);
+        cout << rank << " sent " << t.get_now() << endl;
         recv(recv_from, 0, len, len/size);
+        cout << rank << " received " << t.get_now() << endl;
     }
     else{
+        Timer t;
+        cout << rank << " send " << t.get_now() << endl;
         recv(recv_from, 0, len, len/size);
+        cout << rank << " sent " << t.get_now() << endl;
         send(send_to, 0, 0, len/size);
+        cout << rank << " received " << t.get_now() << endl;
     }
 
-    auto e=chrono::system_clock::now();
-    cout << rank << " " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
 
     delete[] buf;
     MPI_Finalize();

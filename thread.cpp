@@ -5,6 +5,7 @@
 #include <iostream>
 #include <chrono>
 #include <string>
+#include "timer.h"
 
 using namespace std;
 
@@ -88,16 +89,16 @@ int main(int argc, char *argv[]){
         int send_to=(rank+1)%size;
         int recv_from=(rank-1+size)%size;
         if(i==0){
-            auto s=chrono::system_clock::now();
+            Timer t;
+            cout << rank << " send " << t.get_now() << endl;
             send(send_to, send_to, 0, len/size);
-            auto e=chrono::system_clock::now();
-            cout << rank << " send " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
+            cout << rank << " sent " << t.get_now() << endl;
         }
         else{
-            auto s=chrono::system_clock::now();
+            Timer t;
+            cout << rank << " receive " << t.get_now() << endl;
             recv(recv_from, rank, len, len/size);
-            auto e=chrono::system_clock::now();
-            cout << rank << " recv " << chrono::duration_cast<chrono::microseconds>(e-s).count()/M << endl;
+            cout << rank << " received " << t.get_now() << endl;
         }
     }
     
