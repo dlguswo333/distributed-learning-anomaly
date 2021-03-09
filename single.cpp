@@ -59,17 +59,18 @@ int main(int argc, char *argv[]){
     MPI_Barrier(MPI_COMM_WORLD);
     t.start();
 
-    cout << rank << " Recv " << len/size << " elements\n"; 
-    MPI_Irecv(buf, len/size, MPI_INT, recv_from, rank, MPI_COMM_WORLD, &recv_req);
-    cout << rank << " Irecv " << t.seconds() << endl;
-    cout << rank << " Send " << len/size << " elements\n"; 
-    t.start();
-    MPI_Send(buf+len, len/size, MPI_INT, send_to, send_to, MPI_COMM_WORLD);
-    cout << rank << " sent " << t.seconds() << endl;
-    t.start();
-    MPI_Wait(&recv_req, &recv_stat);
-    cout << rank << " tested " << t.seconds() << endl;
-
+    for(int i=0;i<size-1;++i){
+	    cout << rank << " Recv " << len/size << " elements\n"; 
+	    MPI_Irecv(buf, len/size, MPI_INT, recv_from, rank, MPI_COMM_WORLD, &recv_req);
+	    cout << rank << " Irecv " << t.seconds() << endl;
+	    cout << rank << " Send " << len/size << " elements\n"; 
+	    t.start();
+	    MPI_Send(buf+len, len/size, MPI_INT, send_to, send_to, MPI_COMM_WORLD);
+	    cout << rank << " sent " << t.seconds() << endl;
+	    t.start();
+	    MPI_Wait(&recv_req, &recv_stat);
+	    cout << rank << " tested " << t.seconds() << endl;
+    }
 
     delete[] buf;
     MPI_Finalize();
