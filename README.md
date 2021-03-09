@@ -2,6 +2,11 @@
 This repository is to record history about tracking distributed deep learning locality anomalies.
 <br>
 
+## NOTE
+If docker run with priviledge and infiniband, the communication became slower.<br>
+Why? Maybe because there is no proper infiniband driver installed.
+<br>
+
 # 1. Is it strictly epoch standard?
 Log session hooks are called after `run`. But this `run` is not as same as `epoch`.<br>
 Therefore, It cannot be explicitly said that even if `after_run` detects that epoch value>=10,<br>
@@ -142,4 +147,8 @@ Run the command and see if the configured OPENMPI supports it:
 ```bash
 ompi_info | grep -i thread
 ```
+<br>
+
+However this is not the possible solution. I was wrong.<br>
+Internally, MPI does non blocking communications while doing blocking communications.
 <br>
