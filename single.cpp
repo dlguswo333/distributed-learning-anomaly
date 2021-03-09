@@ -32,7 +32,6 @@ int *buf=NULL;
     
 int main(int argc, char *argv[]){
     int rank, size;
-    int provided;
     char hostname[20];
     int name_len;
 
@@ -45,12 +44,7 @@ int main(int argc, char *argv[]){
 
     buf=new int[(long)len*2];
 
-    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
-
-    if(provided<MPI_THREAD_MULTIPLE){
-        cout << "MPI does not provide thread level\n";
-        MPI_Abort(MPI_COMM_WORLD, -1);
-    }
+    MPI_Init(&argc, &argv);
     
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -62,14 +56,17 @@ int main(int argc, char *argv[]){
     int recv_from=(rank-1+size)%size;
 
     Timer t;
+    MPI_Barrier(MPI_COMM_WORLD);
     t.start();
 
     cout << rank << " Recv " << len/size << " elements\n"; 
     MPI_Irecv(buf, len/size, MPI_INT, recv_from, rank, MPI_COMM_WORLD, &recv_req);
     cout << rank << " Irecv " << t.seconds() << endl;
     cout << rank << " Send " << len/size << " elements\n"; 
+    t.start();
     MPI_Send(buf+len, len/size, MPI_INT, send_to, send_to, MPI_COMM_WORLD);
     cout << rank << " sent " << t.seconds() << endl;
+    t.start();
     MPI_Wait(&recv_req, &recv_stat);
     cout << rank << " tested " << t.seconds() << endl;
 
