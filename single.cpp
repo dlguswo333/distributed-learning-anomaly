@@ -31,7 +31,7 @@ int *buf=NULL;
 }*/
     
 int main(int argc, char *argv[]){
-    int rank, size;
+    int rank, size, chunk_size;
     char hostname[20];
     int name_len;
 
@@ -42,12 +42,18 @@ int main(int argc, char *argv[]){
         return -1;
     }
 
-    buf=new int[(long)len*2];
 
     MPI_Init(&argc, &argv);
     
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    buf=new int[len];
+    if(len%size!=0){
+	cout << "Buffer size cannot be divied\n";
+	return -1;
+    }
+    chunk_size=len/size;
 
     MPI_Status recv_stat;
     MPI_Request recv_req;
@@ -55,21 +61,28 @@ int main(int argc, char *argv[]){
     int send_to=(rank+1)%size;
     int recv_from=(rank-1+size)%size;
 
+    for(int i=0;i<size-1;++i){
+	int *send_ptr=buf+chunk_size*((rank-i+size)%size);
+	int *recv_ptr=buf+chunk_size*((rank+i+size)%size);
+	MPI_Irecv(send_ptr, chunk_size, MPI_INT, recv_from, rank, MPI_COMM_WORLD, &recv_req);
+	MPI_Send(recv_ptr, chunk_size, MPI_INT, send_to, send_to, MPI_COMM_WORLD);
+	MPI_Wait(&recv_req, &recv_stat);
+    }
+
     Timer t;
     MPI_Barrier(MPI_COMM_WORLD);
     t.start();
 
     for(int i=0;i<size-1;++i){
-	    cout << rank << " Recv " << len/size << " elements\n"; 
-	    MPI_Irecv(buf, len/size, MPI_INT, recv_from, rank, MPI_COMM_WORLD, &recv_req);
-	    cout << rank << " Irecv " << t.seconds() << endl;
-	    cout << rank << " Send " << len/size << " elements\n"; 
-	    t.start();
-	    MPI_Send(buf+len, len/size, MPI_INT, send_to, send_to, MPI_COMM_WORLD);
-	    cout << rank << " sent " << t.seconds() << endl;
-	    t.start();
-	    MPI_Wait(&recv_req, &recv_stat);
-	    cout << rank << " tested " << t.seconds() << endl;
+	int *send_ptr=buf+chunk_size*((rank-i+size)%size);
+	int *recv_ptr=buf+chunk_size*((rank+i+size)%size);
+	MPI_Irecv(send_ptr, chunk_size, MPI_INT, recv_from, rank, MPI_COMM_WORLD, &recv_req);
+	MPI_Send(recv_ptr, chunk_size, MPI_INT, send_to, send_to, MPI_COMM_WORLD);
+	MPI_Wait(&recv_req, &recv_stat);
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
+    if(rank==0){
+	cout << t.seconds() << endl;
     }
 
     delete[] buf;
