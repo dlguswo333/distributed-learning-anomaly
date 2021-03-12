@@ -152,3 +152,17 @@ ompi_info | grep -i thread
 However this is not the possible solution. I was wrong.<br>
 Internally, MPI does non blocking communications while doing blocking communications.
 <br>
+
+# 6. Why?
+Here I list possible factors that might be the root of this anomaly.
+<br>
+
+## 1. NUMA
+Since the environments are numa architecture, it could cause this kind of anomalies.<br>
+To prevent this, we have to check that,<br>
+By executing ``numactl --show``, the policy is ``default`` or ``bind``.<br>
+``default`` is allocate from the same node first, and ``bind`` is allocate from the same node only.
+<br>
+
+Also, check processes distribution when starting mpi job.<br>
+Check out ``--bind-to`` or ``--map-by``.
