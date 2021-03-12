@@ -13,41 +13,9 @@ const double M=1000000;
 int len=0;
 int *buf=NULL;
 MPI_Comm comms[2];
-/*void func(int my_rank, int other_rank){
-    int *my_buf=new int[len];
-    int *other_buf=new int[len];
-    MPI_Request req;
-
-
-    MPI_Irecv(my_buf, len, MPI_INT, other_rank, 0, MPI_COMM_WORLD, &req);
-    MPI_Send(other_buf, len, MPI_INT, other_rank, 0, MPI_COMM_WORLD);
-    MPI_Wait(&req, MPI_STATUS_IGNORE);
-
-    auto end=chrono::steady_clock::now();
-
-    cout << my_rank << " : " << chrono::duration_cast<chrono::microseconds>(end - start).count()/M << "\n";
-
-    delete[] my_buf;
-    delete[] other_buf;
-    return;
-}*/
-
-
-
-void send(int other_rank, int tag, int start, int len){
-    MPI_Send(buf+start, len, MPI_INT, other_rank, tag, comms[other_rank%2]);
-    cout << "Sent " << len << " elements to " << other_rank << endl;
-    return;
-}
-
-void recv(int other_rank, int tag, int start, int len){
-    MPI_Recv(buf+start, len, MPI_INT, other_rank, tag, comms[(other_rank+1)%2], MPI_STATUS_IGNORE);
-    cout << "Received " << len << " elements from " << other_rank << endl;
-    return;
-}
     
 int main(int argc, char *argv[]){
-    int rank, size;
+    int rank, size, chunk_size;
     int provided;
     char hostname[20];
     int name_len;
@@ -56,13 +24,6 @@ int main(int argc, char *argv[]){
         len=stoi(argv[1]);
     }catch(...){
         cout << "Usage: (executable) (buffer length)\n";
-        return -1;
-    }
-
-    try{
-        buf=new int[(long)len*2];
-    }catch( ... ){
-        cout << "Allocating memory failed.\n";
         return -1;
     }
 
@@ -77,29 +38,64 @@ int main(int argc, char *argv[]){
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     // Will it really work? To duplicate the communicator.
-    for(int i=0;i<2;++i){
-        MPI_Comm_dup(MPI_COMM_WORLD, &comms[i]);
-    }
+    //for(int i=0;i<2;++i){
+    //    MPI_Comm_dup(MPI_COMM_WORLD, &comms[i]);
+    //}
 
     // Every process spawns two threads.
     // Thread 0 sends.
     // Thread 1 receives.
-    #pragma omp parallel for num_threads(2)
-    for(int i=0;i<2;++i){
-        int send_to=(rank+1)%size;
-        int recv_from=(rank-1+size)%size;
-        if(i==0){
-            Timer t;
-            cout << rank << " send " << t.get_now() << endl;
-            send(send_to, send_to, 0, len/size);
-            cout << rank << " sent " << t.get_now() << endl;
-        }
-        else{
-            Timer t;
-            cout << rank << " receive " << t.get_now() << endl;
-            recv(recv_from, rank, len, len/size);
-            cout << rank << " received " << t.get_now() << endl;
-        }
+    buf=new int[len];
+    if(len%size!=0){
+	cout << "Buffer size cannot be divided\n";
+	return -1;
+    }
+    chunk_size=len/size;
+
+    MPI_Status recv_stat;
+    MPI_Request recv_req;
+
+    int send_to=(rank+1)%size;
+    int recv_from=(rank-1+size)%size;
+
+    #pragma omp parallel num_threads(2)
+    {
+	if(omp_get_thread_num()==0){
+	    for(int i=0;i<size-1;++i){
+		int *send_ptr=buf+chunk_size*((rank-i+size)%size);
+		MPI_Send(send_ptr, chunk_size, MPI_INT, send_to, send_to, MPI_COMM_WORLD);
+	    }
+	}
+	else{
+	    for(int i=0;i<size-1;++i){
+		int *recv_ptr=buf+chunk_size*((rank+i+size)%size);
+		MPI_Recv(recv_ptr, chunk_size, MPI_INT, recv_from, rank, MPI_COMM_WORLD, &recv_stat);
+	    }
+	}
+    }
+
+    Timer t;
+    MPI_Barrier(MPI_COMM_WORLD);
+    t.start();
+
+    #pragma omp parallel num_threads(2)
+    {
+	if(omp_get_thread_num()==0){
+	    for(int i=0;i<size-1;++i){
+		int *send_ptr=buf+chunk_size*((rank-i+size)%size);
+		MPI_Send(send_ptr, chunk_size, MPI_INT, send_to, send_to, MPI_COMM_WORLD);
+	    }
+	}
+	else{
+	    for(int i=0;i<size-1;++i){
+		int *recv_ptr=buf+chunk_size*((rank+i+size)%size);
+		MPI_Recv(recv_ptr, chunk_size, MPI_INT, recv_from, rank, MPI_COMM_WORLD, &recv_stat);
+	    }
+	}
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
+    if(rank==0){
+	cout << t.seconds() << endl;
     }
     
 
