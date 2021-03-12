@@ -37,6 +37,8 @@ int main(int argc, char *argv[]){
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+    MPI_Comm_dup(MPI_COMM_WORLD, &comms[0]);
+    MPI_Comm_dup(MPI_COMM_WORLD, &comms[1]);
     // Will it really work? To duplicate the communicator.
     //for(int i=0;i<2;++i){
     //    MPI_Comm_dup(MPI_COMM_WORLD, &comms[i]);
@@ -63,13 +65,13 @@ int main(int argc, char *argv[]){
 	if(omp_get_thread_num()==0){
 	    for(int i=0;i<size-1;++i){
 		int *send_ptr=buf+chunk_size*((rank-i+size)%size);
-		MPI_Send(send_ptr, chunk_size, MPI_INT, send_to, send_to, MPI_COMM_WORLD);
+		MPI_Send(send_ptr, chunk_size, MPI_INT, send_to, send_to, comms[send_to%2]);
 	    }
 	}
 	else{
 	    for(int i=0;i<size-1;++i){
 		int *recv_ptr=buf+chunk_size*((rank+i+size)%size);
-		MPI_Recv(recv_ptr, chunk_size, MPI_INT, recv_from, rank, MPI_COMM_WORLD, &recv_stat);
+		MPI_Recv(recv_ptr, chunk_size, MPI_INT, recv_from, rank, comms[rank%2], &recv_stat);
 	    }
 	}
     }
@@ -83,13 +85,13 @@ int main(int argc, char *argv[]){
 	if(omp_get_thread_num()==0){
 	    for(int i=0;i<size-1;++i){
 		int *send_ptr=buf+chunk_size*((rank-i+size)%size);
-		MPI_Send(send_ptr, chunk_size, MPI_INT, send_to, send_to, MPI_COMM_WORLD);
+		MPI_Send(send_ptr, chunk_size, MPI_INT, send_to, send_to, comms[send_to%2]);
 	    }
 	}
 	else{
 	    for(int i=0;i<size-1;++i){
 		int *recv_ptr=buf+chunk_size*((rank+i+size)%size);
-		MPI_Recv(recv_ptr, chunk_size, MPI_INT, recv_from, rank, MPI_COMM_WORLD, &recv_stat);
+		MPI_Recv(recv_ptr, chunk_size, MPI_INT, recv_from, rank, comms[rank%2], &recv_stat);
 	    }
 	}
     }
