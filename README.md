@@ -142,7 +142,7 @@ only lightly tested.<br>
 Check out the [link](https://www.open-mpi.org/doc/v4.0/man3/MPI_Init_thread.3.php#toc9).
 <br>
 
-Also, MPI_THREAD_MULTIPLE support should have been configured.<br>
+Also, `MPI_THREAD_MULTIPLE` support should have been configured.<br>
 Run the command and see if the configured OPENMPI supports it:
 ```bash
 ompi_info | grep -i thread
@@ -166,3 +166,27 @@ By executing ``numactl --show``, the policy is ``default`` or ``bind``.<br>
 
 Also, check processes distribution when starting mpi job.<br>
 Check out ``--bind-to`` or ``--map-by``.
+
+## 2. Rank Shared by Threads
+This is the most feasible factor among candidates.<br>
+There are so many papers which describes the speed limit caused by the ranks shared by threads.<br>
+The rank is something like a resource, including network resource a shared object, and a locking unit<br>
+to ensure the FIFO order of multiple MPI calls called by multiple threads.<br>
+Thus, without independent contexts and ranks, the threads must propagate with mutual exclusion.
+<br>
+
+![image](./img/shared-rank-across-threads.png)
+
+The solution for the problem proposed is creating endpoints, which is a sort of a rank.<br>
+By assigning a endpoint to each thread, the threads can propagate without mutual exclusion.
+<br>
+
+However, even if the first propsal was made as MPI 3 standard, in 2015,<br>
+it is not yet standardized until now, march 2021.
+<br>
+
+Luckily, Intel MPI has mutliple endpoints support since 2019, with psm2 library.<br>
+I have to look into it.
+<br>
+
+![image](./img/intel-mpi-multiple-endpoints.png)
