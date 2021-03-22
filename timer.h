@@ -1,4 +1,5 @@
 #ifndef TIMER
+#define TIMER
 #include <string>
 #include <chrono>
 using namespace std;
