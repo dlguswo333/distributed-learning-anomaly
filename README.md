@@ -213,7 +213,7 @@ source /opt/intel/oneapi/setvars.sh
 ```
 <br>
 
-The Intel MPI compiler name is `mpiicc`.<br>
+The Intel MPI compiler name for C++ is `mpiicpc`.<br>
 And the mpirun is just `mpirun`.
 <br>
 
