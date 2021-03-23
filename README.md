@@ -190,3 +190,36 @@ I have to look into it.
 <br>
 
 ![image](./img/intel-mpi-multiple-endpoints.png)
+<br>
+
+To download and install Intel MPI, execute:
+```bash
+wget https://registrationcenter-download.intel.com/akdlm/irc_nas/17427/l_HPCKit_p_2021.1.0.2684_offline.sh
+```
+<br>
+
+and then,
+```bash
+bash l_HPCKit_p_2021.1.0.2684_offline.sh
+```
+<br>
+
+The MPI will be installed at `/opt/intel/oneapi/mpi/2021.1.1`.
+But before move on, I need to set environment variables.
+<br>
+
+```bash
+source /opt/intel/oneapi/setvars.sh
+```
+<br>
+
+The Intel MPI compiler name is `mpiicc`.<br>
+And the mpirun is just `mpirun`.
+<br>
+
+For mpirun problems, seems like openmpi and Intel MPI conflict each other.<br>
+Watch this [Intel MPI link](https://software.intel.com/content/www/us/en/develop/articles/improve-performance-and-stability-with-intel-mpi-library-on-infiniband.html).
+<br>
+
+I would better enable the `priviledged` flag when `docker run`ning, to give infiniband awareness to the docker.
+<br>
