@@ -213,6 +213,12 @@ source /opt/intel/oneapi/setvars.sh
 ```
 <br>
 
+Also, I need to change library kind to `release_mt` because multiple endpoint support is only available with that library.
+```bash
+source /opt/intel/oneapi/mpi/2021.1.1/env/vars.sh -i_mpi_library_kind=release_mt
+```
+<br>
+
 The Intel MPI compiler name for C++ is `mpiicpc`.<br>
 And the mpirun is just `mpirun`.
 <br>
