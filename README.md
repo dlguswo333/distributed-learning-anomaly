@@ -219,6 +219,18 @@ source /opt/intel/oneapi/mpi/2021.1.1/env/vars.sh -i_mpi_library_kind=release_mt
 ```
 <br>
 
+Change I_MPI_THREAD_SPLIT to activate multiple endpoints.
+```bash
+export I_MPI_THREAD_SPLIT=1
+```
+<br>
+
+`mlx` provider does not support multi-EP feature. See [here](https://software.intel.com/content/www/us/en/develop/articles/intel-mpi-library-2019-over-libfabric.html).<br>
+Use TCP instead. I don't still get it why PSM2 emits errors.
+```bash
+export I_MPI_OFI_PROVIDER=TCP
+```
+<br>
 The Intel MPI compiler name for C++ is `mpiicpc`.<br>
 And the mpirun is just `mpirun`.
 <br>
