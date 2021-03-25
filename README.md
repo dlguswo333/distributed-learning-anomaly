@@ -192,6 +192,8 @@ I have to look into it.
 ![image](./img/intel-mpi-multiple-endpoints.png)
 <br>
 
+### 1. Intel MPI
+
 To download and install Intel MPI, execute:
 ```bash
 wget https://registrationcenter-download.intel.com/akdlm/irc_nas/17427/l_HPCKit_p_2021.1.0.2684_offline.sh
@@ -238,6 +240,11 @@ And the mpirun is just `mpirun`.
 For mpirun problems, seems like openmpi and Intel MPI conflict each other.<br>
 Watch this [Intel MPI link](https://software.intel.com/content/www/us/en/develop/articles/improve-performance-and-stability-with-intel-mpi-library-on-infiniband.html).
 <br>
+
+If debugging output is needed, set this:
+```bash
+export I_MPI_DEBUG=5
+```
 
 I would better enable the `priviledged` flag when `docker run`ning, to give infiniband awareness to the docker.
 <br>
