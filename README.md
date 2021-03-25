@@ -2,6 +2,9 @@
 This repository is to record history about tracking distributed deep learning locality anomalies.
 <br>
 
+## Quick Link
+[1-intel-mpi](https://github.com/dlguswo333/distributed-learning-anomaly/blob/main/README.md#1-intel-mpi)
+
 ## NOTE
 If docker run with priviledge and infiniband, the communication became slower.<br>
 Why? Maybe because there is no proper infiniband driver installed.
