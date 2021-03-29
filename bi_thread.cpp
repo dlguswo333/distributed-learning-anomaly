@@ -76,7 +76,8 @@ int main(int argc, char *argv[]){
 	    cout << t.seconds() << endl;
     }
     
-    delete[] buf;
+    delete[] send_buf;
+    delete[] recv_buf;
     MPI_Finalize();
     return 0;
 }

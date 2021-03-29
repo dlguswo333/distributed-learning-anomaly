@@ -59,7 +59,8 @@ int main(int argc, char *argv[]){
     }
     
 
-    delete[] buf;
+    delete[] send_buf;
+    delete[] recv_buf;
     MPI_Finalize();
     return 0;
 }
