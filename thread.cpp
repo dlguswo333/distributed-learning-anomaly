@@ -5,27 +5,30 @@
 #include <iostream>
 #include <chrono>
 #include <string>
+#include <vector>
 #include "timer.h"
 
 using namespace std;
 
 const double M=1000000;
-int len=0;
+int len=1073741824;
 int *buf=NULL;
-MPI_Comm comms[2];
+vector<MPI_Comm> comms;
     
 int main(int argc, char *argv[]){
     int rank, size, chunk_size;
+    int num_thread=-1;
     int provided;
     char hostname[20];
     int name_len;
 
     try{
-        len=stoi(argv[1]);
+        num_thread=stoi(argv[1]);
     }catch(...){
-        cout << "Usage: (executable) (buffer length)\n";
+        cout << "Usage: (executable) (# of threads per process)\n";
         return -1;
     }
+    comms.resize(num_thread);
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
 
@@ -35,69 +38,51 @@ int main(int argc, char *argv[]){
     }
     
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+    if(size!=2){
+        cout << "# of processes is not 2\n";
+        MPI_Abort(MPI_COMM_WORLD, -1);
+    }
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    MPI_Comm_dup(MPI_COMM_WORLD, &comms[0]);
-    MPI_Comm_dup(MPI_COMM_WORLD, &comms[1]);
-    // Will it really work? To duplicate the communicator.
-    //for(int i=0;i<2;++i){
-    //    MPI_Comm_dup(MPI_COMM_WORLD, &comms[i]);
-    //}
+    for(int i=0;i<num_thread;++i){
+       MPI_Comm_dup(MPI_COMM_WORLD, &comms[i]);
+    }
 
     // Every process spawns two threads.
     // Thread 0 sends.
     // Thread 1 receives.
     buf=new int[len];
-    if(len%size!=0){
-	cout << "Buffer size cannot be divided\n";
-	return -1;
+    if(len%num_thread!=0){
+        cout << "Buffer size cannot be divided\n";
+        return -1;
     }
     chunk_size=len/size;
 
     MPI_Status recv_stat;
     MPI_Request recv_req;
 
-    int send_to=(rank+1)%size;
-    int recv_from=(rank-1+size)%size;
-
-    #pragma omp parallel num_threads(2)
-    {
-	if(omp_get_thread_num()==0){
-	    for(int i=0;i<size-1;++i){
-		int *send_ptr=buf+chunk_size*((rank-i+size)%size);
-		MPI_Send(send_ptr, chunk_size, MPI_INT, send_to, send_to, comms[send_to%2]);
-	    }
-	}
-	else{
-	    for(int i=0;i<size-1;++i){
-		int *recv_ptr=buf+chunk_size*((rank+i+size)%size);
-		MPI_Recv(recv_ptr, chunk_size, MPI_INT, recv_from, rank, comms[rank%2], &recv_stat);
-	    }
-	}
-    }
-
     Timer t;
     MPI_Barrier(MPI_COMM_WORLD);
     t.start();
 
-    #pragma omp parallel num_threads(2)
-    {
-	if(omp_get_thread_num()==0){
-	    for(int i=0;i<size-1;++i){
-		int *send_ptr=buf+chunk_size*((rank-i+size)%size);
-		MPI_Send(send_ptr, chunk_size, MPI_INT, send_to, send_to, comms[send_to%2]);
-	    }
-	}
-	else{
-	    for(int i=0;i<size-1;++i){
-		int *recv_ptr=buf+chunk_size*((rank+i+size)%size);
-		MPI_Recv(recv_ptr, chunk_size, MPI_INT, recv_from, rank, comms[rank%2], &recv_stat);
-	    }
-	}
+    if(rank==0){
+        // Send.
+        #pragma omp parallel for num_threads(num_thread)
+        for(int i=0;i<num_thread;++i){
+            MPI_Send(buf, chunk_size, MPI_INT, 1, 0, comms[i]);
+        }
     }
+    else{
+        // Receive.
+        #pragma omp parallel for num_threads(num_thread)
+        for(int i=0;i<num_thread;++i){
+            MPI_Recv(buf, chunk_size, MPI_INT, 0, 0, comms[i], recv_s);
+        }
+    }
+
     MPI_Barrier(MPI_COMM_WORLD);
     if(rank==0){
-	cout << t.seconds() << endl;
+	    cout << t.seconds() << endl;
     }
     
 
