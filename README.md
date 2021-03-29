@@ -230,6 +230,14 @@ export I_MPI_THREAD_SPLIT=1
 ```
 <br>
 
+The default maximum number of determined by `the omp_get_max_threads()`.<br>
+If that is too large, it might fail to run the MPI program.<br>
+Override the default value with, and change the `2` to the number of threads per rank:
+```bash
+export I_MPI_THREAD_MAX=2
+```
+<br>
+
 `mlx` provider does not support multi-EP feature. See [here](https://software.intel.com/content/www/us/en/develop/articles/intel-mpi-library-2019-over-libfabric.html).<br>
 Use TCP instead. I don't still get it why PSM2 emits errors.
 ```bash
