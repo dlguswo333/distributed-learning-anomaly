@@ -2,6 +2,9 @@
 This repository is to record history about tracking distributed deep learning locality anomalies.
 <br>
 
+## Quick Link
+[1-intel-mpi](https://github.com/dlguswo333/distributed-learning-anomaly/blob/main/README.md#1-intel-mpi)
+
 ## NOTE
 If docker run with priviledge and infiniband, the communication became slower.<br>
 Why? Maybe because there is no proper infiniband driver installed.
@@ -192,6 +195,8 @@ I have to look into it.
 ![image](./img/intel-mpi-multiple-endpoints.png)
 <br>
 
+### 1. Intel MPI
+
 To download and install Intel MPI, execute:
 ```bash
 wget https://registrationcenter-download.intel.com/akdlm/irc_nas/17427/l_HPCKit_p_2021.1.0.2684_offline.sh
@@ -213,6 +218,24 @@ source /opt/intel/oneapi/setvars.sh
 ```
 <br>
 
+Also, I need to change library kind to `release_mt` because multiple endpoint support is only available with that library.
+```bash
+source /opt/intel/oneapi/mpi/2021.1.1/env/vars.sh -i_mpi_library_kind=release_mt
+```
+<br>
+
+Change I_MPI_THREAD_SPLIT to activate multiple endpoints.
+```bash
+export I_MPI_THREAD_SPLIT=1
+```
+<br>
+
+`mlx` provider does not support multi-EP feature. See [here](https://software.intel.com/content/www/us/en/develop/articles/intel-mpi-library-2019-over-libfabric.html).<br>
+Use TCP instead. I don't still get it why PSM2 emits errors.
+```bash
+export I_MPI_OFI_PROVIDER=TCP
+```
+<br>
 The Intel MPI compiler name for C++ is `mpiicpc`.<br>
 And the mpirun is just `mpirun`.
 <br>
@@ -220,6 +243,11 @@ And the mpirun is just `mpirun`.
 For mpirun problems, seems like openmpi and Intel MPI conflict each other.<br>
 Watch this [Intel MPI link](https://software.intel.com/content/www/us/en/develop/articles/improve-performance-and-stability-with-intel-mpi-library-on-infiniband.html).
 <br>
+
+If debugging output is needed, set this:
+```bash
+export I_MPI_DEBUG=5
+```
 
 I would better enable the `priviledged` flag when `docker run`ning, to give infiniband awareness to the docker.
 <br>
