@@ -56,7 +56,7 @@ int main(int argc, char *argv[]){
         cout << "Buffer size cannot be divided\n";
         return -1;
     }
-    chunk_size=len/size;
+    chunk_size=len/num_thread;
 
     MPI_Status recv_stat;
     MPI_Request recv_req;
