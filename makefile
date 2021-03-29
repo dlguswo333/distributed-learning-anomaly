@@ -5,15 +5,21 @@ LEN=1073741824
 NUM_THREAD=2
 COMPILER=mpiicpc
 OMP_FLAG=-qopenmp
+
 SINGLE_SRC=single.cpp
 THREAD_SRC=thread.cpp
 SERIAL_SRC=serial.cpp
+BI_SINGLE_SRC=bi_single.cpp
+BI_THREAD_SRC=bi_single.cpp
+
 TIMER_SRC=timer.cpp
 SINGLE_EXE=single
 THREAD_EXE=thread
 SERIAL_EXE=serial
+BI_SINGLE_EXE=bi_single
+BI_THREAD_EXE=bi_thread
 
-all: single thread serial
+all: single thread serial bi_single
 	
 single: $(SINGLE_SRC)
 	$(COMPILER) $(SINGLE_SRC) $(TIMER_SRC) -o $(SINGLE_EXE)
@@ -23,6 +29,12 @@ thread: $(THREAD_SRC)
 
 serial: $(SERIAL_SRC)
 	$(COMPILER) $(SERIAL_SRC) $(TIMER_SRC) -o $(SERIAL_EXE)
+
+bi_single: $(BI_SINGLE_SRC)
+	$(COMPILER) $(BI_SINGLE_SRC) $(TIMER_SRC) -o $(BI_SINGLE_EXE)
+	
+bi_thread: $(BI_THREAD_SRC)
+	$(COMPILER) $(BI_THREAD_SRC) $(TIMER_SRC) -o $(BI_THREAD_EXE)
 
 clean:
 	rm -f $(SINGLE_EXE) $(THREAD_EXE) $(SERIAL_EXE)
