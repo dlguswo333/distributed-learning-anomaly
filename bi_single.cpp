@@ -43,13 +43,13 @@ int main(int argc, char *argv[]){
     t.start();
 
     if(rank==0){
-        MPI_Send(send_buf, len, MPI_INT, 1, 0, MPI_COMM_WORLD);
         MPI_Irecv(recv_buf, len, MPI_INT, 1, 1, MPI_COMM_WORLD, &recv_req);
+        MPI_Send(send_buf, len, MPI_INT, 1, 0, MPI_COMM_WORLD);
         MPI_Wait(&recv_req, &recv_stat);
     }
     else{
-        MPI_Send(send_buf, len, MPI_INT, 0, 1, MPI_COMM_WORLD);
         MPI_Irecv(recv_buf, len, MPI_INT, 0, 0, MPI_COMM_WORLD, &recv_req);
+        MPI_Send(send_buf, len, MPI_INT, 0, 1, MPI_COMM_WORLD);
         MPI_Wait(&recv_req, &recv_stat);
     }
 
