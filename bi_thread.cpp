@@ -62,7 +62,6 @@ int main(int argc, char *argv[]){
             if((rank%2==0 && omp_get_thread_num()==0) || (rank%2==1 && omp_get_thread_num()==1)){
                 // Send.
                 MPI_Send(send_buf, len, MPI_INT, (rank+1)%2, 0, comms[(rank+1)%2]);
-
             }
             else{
                 // Receive.

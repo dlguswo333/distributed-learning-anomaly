@@ -48,8 +48,8 @@ int main(int argc, char *argv[]){
         MPI_Wait(&recv_req, &recv_stat);
     }
     else{
-        MPI_Send(send_buf, len, MPI_INT, 0, 0, MPI_COMM_WORLD);
-        MPI_Irecv(recv_buf, len, MPI_INT, 0, 1, MPI_COMM_WORLD, &recv_req);
+        MPI_Send(send_buf, len, MPI_INT, 0, 1, MPI_COMM_WORLD);
+        MPI_Irecv(recv_buf, len, MPI_INT, 0, 0, MPI_COMM_WORLD, &recv_req);
         MPI_Wait(&recv_req, &recv_stat);
     }
 
