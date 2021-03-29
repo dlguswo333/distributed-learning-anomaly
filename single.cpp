@@ -51,10 +51,7 @@ int main(int argc, char *argv[]){
     }
     else{
         // Receive.
-        #pragma omp parallel for num_threads(num_thread)
-        for(int i=0;i<num_thread;++i){
-            MPI_Recv(buf, len, MPI_INT, 0, 0, MPI_COMM_WORLD, &recv_stat);
-        }
+        MPI_Recv(buf, len, MPI_INT, 0, 0, MPI_COMM_WORLD, &recv_stat);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
