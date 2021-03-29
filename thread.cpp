@@ -69,14 +69,14 @@ int main(int argc, char *argv[]){
         // Send.
         #pragma omp parallel for num_threads(num_thread)
         for(int i=0;i<num_thread;++i){
-            MPI_Send(buf, chunk_size, MPI_INT, 1, 0, comms[i]);
+            MPI_Send(buf+chunk_size*i, chunk_size, MPI_INT, 1, 0, comms[i]);
         }
     }
     else{
         // Receive.
         #pragma omp parallel for num_threads(num_thread)
         for(int i=0;i<num_thread;++i){
-            MPI_Recv(buf, chunk_size, MPI_INT, 0, 0, comms[i], recv_s);
+            MPI_Recv(buf+chunk_size*i, chunk_size, MPI_INT, 0, 0, comms[i], &recv_stat);
         }
     }
 

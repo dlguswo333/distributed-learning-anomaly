@@ -3,6 +3,8 @@ NP=2
 HALF_NP=1
 LEN=1073741824
 NUM_THREAD=2
+COMPILER=mpiicpc
+OMP_FLAG=-qopenmp
 SINGLE_SRC=single.cpp
 THREAD_SRC=thread.cpp
 SERIAL_SRC=serial.cpp
@@ -14,13 +16,13 @@ SERIAL_EXE=serial
 all: single thread serial
 	
 single: $(SINGLE_SRC)
-	mpic++ $(SINGLE_SRC) $(TIMER_SRC) -o $(SINGLE_EXE)
+	COMPILER $(SINGLE_SRC) $(TIMER_SRC) -o $(SINGLE_EXE)
 
 thread: $(THREAD_SRC)
-	mpic++ $(THREAD_SRC) $(TIMER_SRC) -fopenmp -o $(THREAD_EXE)
+	COMPILER $(THREAD_SRC) $(TIMER_SRC) OMP_FLAG -o $(THREAD_EXE)
 
 serial: $(SERIAL_SRC)
-	mpic++ $(SERIAL_SRC) $(TIMER_SRC) -o $(SERIAL_EXE)
+	COMPILER $(SERIAL_SRC) $(TIMER_SRC) -o $(SERIAL_EXE)
 
 clean:
 	rm -f $(SINGLE_EXE) $(THREAD_EXE) $(SERIAL_EXE)
