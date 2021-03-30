@@ -1,3 +1,5 @@
 single
 thread
 serial
+bi_single
+bi_thread
