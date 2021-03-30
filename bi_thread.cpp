@@ -13,6 +13,7 @@ using namespace std;
 const double M=1000000;
 int len=1073741824;
 int *send_buf=NULL, *recv_buf=NULL;
+vector<MPI_Comm> comms;
     
 int main(int argc, char *argv[]){
     int rank, size;
@@ -40,12 +41,6 @@ int main(int argc, char *argv[]){
     }
 
     // Every process spawns two threads.
-    // Thread 0 sends.
-    // Thread 1 receives.
-    if(len%num_thread!=0){
-        cout << "Buffer size cannot be divided\n";
-        return -1;
-    }
     send_buf=new int[len];
     recv_buf=new int[len];
 
@@ -56,17 +51,15 @@ int main(int argc, char *argv[]){
     MPI_Barrier(MPI_COMM_WORLD);
     t.start();
 
-    if(rank==0){
-        #pragma omp parallel num_threads(2)
-        {
-            if((rank%2==0 && omp_get_thread_num()==0) || (rank%2==1 && omp_get_thread_num()==1)){
-                // Send.
-                MPI_Send(send_buf, len, MPI_INT, (rank+1)%2, 0, comms[(rank+1)%2]);
-            }
-            else{
-                // Receive.
-                MPI_Recv(recv_buf, len, MPI_INT, (rank+1)%2, 0, comms[rank%2], &recv_stat);
-            }
+    #pragma omp parallel num_threads(2)
+    {
+        if((rank%2==0 && omp_get_thread_num()==0) || (rank%2==1 && omp_get_thread_num()==1)){
+            // Send.
+            MPI_Send(send_buf, len, MPI_INT, (rank+1)%2, 0, comms[(rank+1)%2]);
+        }
+        else{
+            // Receive.
+            MPI_Recv(recv_buf, len, MPI_INT, (rank+1)%2, 0, comms[rank%2], &recv_stat);
         }
     }
 

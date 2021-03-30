@@ -10,7 +10,7 @@ SINGLE_SRC=single.cpp
 THREAD_SRC=thread.cpp
 SERIAL_SRC=serial.cpp
 BI_SINGLE_SRC=bi_single.cpp
-BI_THREAD_SRC=bi_single.cpp
+BI_THREAD_SRC=bi_thread.cpp
 
 TIMER_SRC=timer.cpp
 SINGLE_EXE=single
