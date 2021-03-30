@@ -16,7 +16,7 @@ int *send_buf=NULL, *recv_buf=NULL;
 vector<MPI_Comm> comms;
     
 int main(int argc, char *argv[]){
-    int rank, size;
+    int rank, size, provided;
     char hostname[20];
     int name_len;
 
