@@ -3,8 +3,8 @@ NP=2
 HALF_NP=1
 LEN=1073741824
 NUM_THREAD=2
-COMPILER=mpiicpc
-OMP_FLAG=-qopenmp
+COMPILER=mpigxx
+OMP_FLAG=-fopenmp
 
 SINGLE_SRC=single.cpp
 THREAD_SRC=thread.cpp
@@ -37,7 +37,7 @@ bi_thread: $(BI_THREAD_SRC)
 	$(COMPILER) $(BI_THREAD_SRC) $(TIMER_SRC) $(OMP_FLAG) -o $(BI_THREAD_EXE)
 
 clean:
-	rm -f $(SINGLE_EXE) $(THREAD_EXE) $(SERIAL_EXE)
+	rm -f $(SINGLE_EXE) $(THREAD_EXE) $(SERIAL_EXE) $(BI_THREAD_EXE) $(BI_SERIAL_EXE)
 
 run-local:
 	time mpiexec --allow-run-as-root -np $(NP) $(SINGLE_EXE) $(LEN) 
