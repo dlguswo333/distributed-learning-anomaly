@@ -37,7 +37,7 @@ bi_thread: $(BI_THREAD_SRC)
 	$(COMPILER) $(BI_THREAD_SRC) $(TIMER_SRC) $(OMP_FLAG) -o $(BI_THREAD_EXE)
 
 clean:
-	rm -f $(SINGLE_EXE) $(THREAD_EXE) $(SERIAL_EXE) $(BI_THREAD_EXE) $(BI_SERIAL_EXE)
+	rm -f $(SINGLE_EXE) $(THREAD_EXE) $(SERIAL_EXE) $(BI_THREAD_EXE) $(BI_SINGLE_EXE)
 
 run-local:
 	time mpiexec --allow-run-as-root -np $(NP) $(SINGLE_EXE) $(LEN) 
