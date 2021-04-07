@@ -266,3 +266,10 @@ Rembember to specify network interface otherwise it will fail to connect to remo
 
 I would better enable the `priviledged` flag when `docker run`ning, to give infiniband awareness to the docker.
 <br>
+
+# 7. Horovod
+
+In horovod, The actual MPI_Allreduce happens in 
+```bash
+horovod/horovod/common/ops/mpi_operations.cc
+```
