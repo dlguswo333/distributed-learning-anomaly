@@ -11,7 +11,7 @@
 using namespace std;
 
 const double M=1000000;
-int len=1073741824;
+int len=805306368;
 int *send_buf=NULL, *recv_buf=NULL;
     
 int main(int argc, char *argv[]){
