@@ -257,5 +257,12 @@ If debugging output is needed, set this:
 export I_MPI_DEBUG=5
 ```
 
+Then run with the following command:
+```bash
+mpirun -n 6 -machine m42 -iface enp216s0 ./allreduce-test cpu
+```
+Rembember to specify network interface otherwise it will fail to connect to remote machines.
+<br>
+
 I would better enable the `priviledged` flag when `docker run`ning, to give infiniband awareness to the docker.
 <br>
