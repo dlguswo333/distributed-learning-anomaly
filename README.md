@@ -14,10 +14,11 @@ Why? Maybe because there is no proper infiniband driver installed.
 > Deep Neural Networks (DNNs) have dramatically improved the state-of-the-art for many problems<br>
 > that machine learning (ML) and artificial intelligence (A.I.) community dealt with for decades,<br>
 > including speech recognition, machine translaton, object identification, ...<br>
-> <cite>Salem Alqahtani, Murat Demirbas, “Performance Analysis and Comparison of Distributed Machine Learning Systems,” ICCCN, 2019.</cite>
+> <br>
+> <cite>-- Salem Alqahtani, Murat Demirbas, “Performance Analysis and Comparison of Distributed Machine Learning Systems,” ICCCN, 2019.</cite>
 
 This DNN, Deep Learning procedure is very hungry for large data.<br>
-And of course, dealing with large data requires tiny computing powers.<br>
+And of course, dealing with large data requires huge computing powers.<br>
 Therefore, to derive larger computing powers to single DNN, Distributed Learning has arrived.
 <br>
 
