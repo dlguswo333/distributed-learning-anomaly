@@ -3,14 +3,31 @@ This repository is to record history about tracking distributed deep learning lo
 <br>
 
 ## Quick Link
-[1-intel-mpi](https://github.com/dlguswo333/distributed-learning-anomaly/blob/main/README.md#1-intel-mpi)
+[1-intel-mpi](#1-intel-mpi)
 
 ## NOTE
 If docker run with priviledge and infiniband, the communication became slower.<br>
 Why? Maybe because there is no proper infiniband driver installed.
 <br>
 
-# 1. Is it strictly epoch standard?
+# 1. What is Distributed Learning?
+> Deep Neural Networks (DNNs) have dramatically improved the state-of-the-art for many problems<br>
+> that machine learning (ML) and artificial intelligence (A.I.) community dealt with for decades,<br>
+> including speech recognition, machine translaton, object identification, ...<br>
+> <cite>Salem Alqahtani, Murat Demirbas, “Performance Analysis and Comparison of Distributed Machine Learning Systems,” ICCCN, 2019.</cite>
+
+This DNN, Deep Learning procedure is very hungry for large data.<br>
+And of course, dealing with large data requires tiny computing powers.<br>
+Therefore, to derive larger computing powers to single DNN, Distributed Learning has arrived.
+<br>
+
+Distributed Learning is where multiple workers work together, and <br>
+each worker run learning on chunks obtained by data parallelism, to obtain<br>
+*local gradient*. These local gradients are gathered by sum or avgerage to produce<br>
+*global gradient*.
+<br>
+
+# 2. Is it strictly epoch standard?
 Log session hooks are called after `run`. But this `run` is not as same as `epoch`.<br>
 Therefore, It cannot be explicitly said that even if `after_run` detects that epoch value>=10,<br>
 It is not exactly epoch==10, but something like 10.02.
@@ -24,7 +41,7 @@ and when epoch value is equal or bigger than the specific value,<br>
 print differences in both epoch and time, and epoch difference divided by time difference.
 <br>
 
-# 2. Configure tensorflow not to save logs in /tmp
+# 3. Configure tensorflow not to save logs in /tmp
 There is a suspicision that writing files of big size result in anomalies.
 <br>
 
@@ -49,13 +66,13 @@ After this edit, I observed that temporary folder is not created inside `/tmp`.
 However, will it really not write files by just letting the `model_dir` to be `None`?
 
 
-# 3. Eliminate network part
+# 4. Eliminate network part
 `/usr/local/lib/python3.6/dist-packages/horovod/tensorflow/__init__.py`<br>
 The above python script implements how ring-allreduce works.<br>
 For example, see the line 311.
 <br>
 
-# 4. baidu-allreduce
+# 5. baidu-allreduce
 Found a interesting repository on Github. The link is [here](https://github.com/baidu-research/baidu-allreduce).<br>
 The repository is made by baidu, the company which implemented ring-allreduce algorithm.<br>
 The repository is written in C++, and it demonstrates how the algorithm works in a brief.
@@ -125,7 +142,7 @@ Even if it might be true for MPI, I do not know if same goes with other APIs, su
 I need to take a look at those other APIs.
 <br>
 
-# 5. How to Resolve
+# 6. How to Resolve
 There are two resolutions came to mind:<br>
 1. Implement asynchronous, background API.<br>
 2. Run send and receive functions on separate threads.<br>
@@ -156,7 +173,7 @@ However this is not the possible solution. I was wrong.<br>
 Internally, MPI does non blocking communications while doing blocking communications.
 <br>
 
-# 6. Why?
+# 7. Why?
 Here I list possible factors that might be the root of this anomaly.
 <br>
 
@@ -267,7 +284,7 @@ Rembember to specify network interface otherwise it will fail to connect to remo
 I would better enable the `priviledged` flag when `docker run`ning, to give infiniband awareness to the docker.
 <br>
 
-# 7. Horovod
+# 8. Horovod
 
 In horovod, The actual MPI_Allreduce happens in 
 ```bash
